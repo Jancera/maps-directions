@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Callout } from "react-native-maps";
 
 import * as Location from "expo-location";
 
@@ -45,7 +45,16 @@ const App = () => {
         {marker.length > 0 &&
           marker.map((m) => {
             return (
-              <Marker coordinate={m} key={Math.random().toString()} />
+              <Marker
+                coordinate={m}
+                key={Math.random().toString()}
+                title="First"
+                description="This is the first marker"
+              >
+                <Callout style={styles.newMarker}>
+                  <Text>First</Text>
+                </Callout>
+              </Marker>
             );
           })}
       </MapView>
@@ -60,6 +69,11 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  newMarker: {
+    height: 50,
+    width: 50,
+    backgroundColor: "yellow",
   },
 });
 
