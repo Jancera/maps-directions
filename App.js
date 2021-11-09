@@ -78,7 +78,7 @@ const App = () => {
         loadingEnabled
         mapType="terrain"
       >
-        {/*    {marker.length > 0 &&
+        {/* {marker.length > 0 &&
           marker.map((m) => {
             return (
               <Marker
