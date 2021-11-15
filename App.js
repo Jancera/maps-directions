@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
-import MapView, {
-  Marker,
-  Callout,
-  Polygon,
-  Circle,
-} from "react-native-maps";
+import MapView from "react-native-maps";
 
 import * as Location from "expo-location";
 
 const App = () => {
   const [location, setLocation] = useState(null);
-  const [marker, setMarker] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -24,18 +18,24 @@ const App = () => {
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
+      setLocation(location.coords);
     })();
   }, []);
 
-  const handleNewMarker = (coordinate) => {
-    setMarker([...marker, coordinate]);
-  };
+  Location.watchPositionAsync(
+    {
+      timeInterval: 1000,
+      accuracy: Location.LocationAccuracy.BestForNavigation,
+    },
+    (e) => {
+      console.log(e);
+    },
+  );
 
   return (
     <View style={styles.container}>
       <MapView
-        onPress={(e) => handleNewMarker(e.nativeEvent.coordinate)}
+        onPress={(e) => console.log(e)}
         style={styles.map}
         initialRegion={{
           latitude: 37.42597730214824,
@@ -46,33 +46,7 @@ const App = () => {
         showsUserLocation
         loadingEnabled
         mapType="terrain"
-      >
-        {/*    {marker.length > 0 &&
-          marker.map((m) => {
-            return (
-              <Marker
-                coordinate={m}
-                key={Math.random().toString()}
-                title="First"
-                description="This is the first marker"
-              >
-                <Callout style={styles.newMarker}>
-                  <Text>First</Text>
-                </Callout>
-              </Marker>
-            );
-          })} */}
-        <Circle
-          center={{
-            latitude: 37.40382438468419,
-            longitude: -122.08519008010626,
-          }}
-          radius={2000}
-          strokeWidth={5}
-          strokeColor="blue"
-          fillColor="rgba(15, 40, 200, 0.2)"
-        />
-      </MapView>
+      ></MapView>
     </View>
   );
 };
