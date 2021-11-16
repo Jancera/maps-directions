@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Button, StyleSheet, View } from "react-native";
 
-import MapView from "react-native-maps";
+import MapView, { Circle, Polyline } from "react-native-maps";
 
 import * as Location from "expo-location";
 
 const App = () => {
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -18,24 +18,32 @@ const App = () => {
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      setLocation(location.coords);
+      console.log(location);
+      setLocation([location.coords]);
     })();
   }, []);
 
-  Location.watchPositionAsync(
-    {
-      timeInterval: 1000,
-      accuracy: Location.LocationAccuracy.BestForNavigation,
-    },
-    (e) => {
-      console.log(e);
-    },
-  );
+  let listener = null;
+  const startTracking = () => {
+    listener = Location.watchPositionAsync(
+      {
+        interval: 1000,
+        accuracy: Location.Accuracy.BestForNavigation,
+      },
+      (position) => console.log(position),
+    );
+  };
+
+  const stopTracking = () => {
+    listener.then((listener) => listener.remove());
+  };
 
   return (
     <View style={styles.container}>
+      <Button title="start" onPress={startTracking} />
+      <Button title="stop" onPress={stopTracking} />
       <MapView
-        onPress={(e) => console.log(e)}
+        onPress={() => {}}
         style={styles.map}
         initialRegion={{
           latitude: 37.42597730214824,
@@ -45,7 +53,6 @@ const App = () => {
         }}
         showsUserLocation
         loadingEnabled
-        mapType="terrain"
       ></MapView>
     </View>
   );
