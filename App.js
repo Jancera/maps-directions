@@ -10,6 +10,7 @@ import Geolocation from "react-native-geolocation-service";
 
 const App = () => {
   const [location, setLocation] = useState([]);
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   useEffect(() => {
     (async () => {
@@ -27,27 +28,20 @@ const App = () => {
     })();
   }, []);
 
-  let listener = null;
-  const startTracking = () => {
-    listener = Geolocation.watchPosition(
-      (position) => {
-        console.log(position);
-      },
-      (error) => {
-        console.log(error.code, error.message);
-      },
-      { interval: 1000, distanceFilter: 0, fastestInterval: 0 },
-    );
+  const setNewLocation = () => {
+    setLocation((location) => {
+      console.log(location);
+      const last = location.slice(-1)[0];
+      const newValue = {
+        latitude: last.latitude + 0.005,
+        longitude: last.longitude,
+      };
+      return [...location, newValue];
+    });
   };
-
-  const stopTracking = () => {
-    Geolocation.clearWatch(listener);
-  };
-
   return (
     <View style={styles.container}>
-      <Button title="start" onPress={startTracking} />
-      <Button title="stop" onPress={stopTracking} />
+      <Button title="Change position" onPress={setNewLocation} />
       <MapView
         onPress={() => {}}
         style={styles.map}
@@ -59,7 +53,23 @@ const App = () => {
         }}
         showsUserLocation
         loadingEnabled
-      ></MapView>
+        onRegionChangeComplete={(e) => {
+          setZoomLevel(e.latitudeDelta);
+        }}
+      >
+        {location.length > 1 && (
+          <>
+            <Circle
+              center={location.slice(-1)[0]}
+              radius={2000 * zoomLevel}
+              strokeWidth={5}
+              strokeColor="#ee7547"
+              fillColor="#ffb73c"
+            />
+            <Polyline coordinates={location} strokeWidth={3} />
+          </>
+        )}
+      </MapView>
     </View>
   );
 };
