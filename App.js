@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  StyleSheet,
-  View,
-  PermissionsAndroid,
-} from "react-native";
-import MapView, { Circle, Polyline } from "react-native-maps";
+import { StyleSheet, View, PermissionsAndroid } from "react-native";
+import MapView from "react-native-maps";
 import Geolocation from "react-native-geolocation-service";
 
+import MapViewDirections from "react-native-maps-directions";
+
 const App = () => {
-  const [location, setLocation] = useState([]);
-  const [zoomLevel, setZoomLevel] = useState(1);
+  const [location, setLocation] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -19,7 +15,7 @@ const App = () => {
       );
       Geolocation.getCurrentPosition(
         (position) => {
-          setLocation([position.coords]);
+          setLocation(position.coords);
         },
         (error) => {
           console.log(error.code, error.message);
@@ -28,22 +24,25 @@ const App = () => {
     })();
   }, []);
 
-  const setNewLocation = () => {
-    setLocation((location) => {
-      console.log(location);
-      const last = location.slice(-1)[0];
-      const newValue = {
-        latitude: last.latitude + 0.005,
-        longitude: last.longitude,
-      };
-      return [...location, newValue];
-    });
+  const DESTINATION = {
+    latitude: 37.404094980214204,
+    longitude: -122.06176266074179,
   };
+  const DESTINATION2 = {
+    latitude: 37.43860733758064,
+    longitude: -122.1129110455513,
+  };
+  const DESTINATION3 = {
+    latitude: 37.389399376437815,
+    longitude: -122.10134234279394,
+  };
+
   return (
     <View style={styles.container}>
-      <Button title="Change position" onPress={setNewLocation} />
       <MapView
-        onPress={() => {}}
+        onPress={(e) => {
+          console.log(e.nativeEvent.coordinate);
+        }}
         style={styles.map}
         initialRegion={{
           latitude: 37.42597730214824,
@@ -53,22 +52,14 @@ const App = () => {
         }}
         showsUserLocation
         loadingEnabled
-        onRegionChangeComplete={(e) => {
-          setZoomLevel(e.latitudeDelta);
-        }}
       >
-        {location.length > 1 && (
-          <>
-            <Circle
-              center={location.slice(-1)[0]}
-              radius={2000 * zoomLevel}
-              strokeWidth={5}
-              strokeColor="#ee7547"
-              fillColor="#ffb73c"
-            />
-            <Polyline coordinates={location} strokeWidth={3} />
-          </>
-        )}
+        <MapViewDirections
+          origin={location}
+          destination={DESTINATION3}
+          apikey="AIzaSyBRgJOx1PSeTIunpdEDN8Ms_egglS9nafQ"
+          strokeWidth={5}
+          strokeColor="green"
+        />
       </MapView>
     </View>
   );
